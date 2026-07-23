@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>چک‌لیست هوشمند</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* ===== تم روشن ===== */
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-card: #1a1d27;
+            --bg-task: #252a36;
+            --bg-input: #0f1117;
+            --bg-hover: #2a2d3a;
+            --border-color: #2a2d3a;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --shadow-color: rgba(0,0,0,0.4);
+            --btn-gradient: linear-gradient(135deg, #10b981, #059669);
+            --btn-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            --prefix-bg: #1a2a3a;
+            --prefix-border: #2a4a5a;
+            --scrollbar-thumb: #2a2d3a;
+        }
+        body.light-theme {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-task: #f8fafc;
+            --bg-input: #ffffff;
+            --bg-hover: #eef2f6;
+            --border-color: #e2e8f0;
+            --text-primary: #0b1e33;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --shadow-color: rgba(0,0,0,0.08);
+            --btn-gradient: linear-gradient(135deg, #10b981, #059669);
+            --btn-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            --prefix-bg: #dbeafe;
+            --prefix-border: #93c5fd;
+            --scrollbar-thumb: #cbd5e1;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 0;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: 0;
+            padding: 0;
+            box-shadow: 0 4px 30px var(--shadow-color);
+            border: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: background 0.3s;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px 10px;
+            border-bottom: 1.5px solid var(--border-color);
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            flex-shrink: 0;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .header .search-box {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .header .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-right: 44px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 30px;
+            font-size: 17px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: 0.2s;
+            min-height: 50px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header .search-box input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: var(--bg-secondary);
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .header .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+        .header .search-box .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+        .header .search-box .search-clear {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            display: none;
+        }
+        .header .search-box .search-clear.show {
+            display: block;
+        }
+        .header .settings-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .header .settings-btn:active {
+            transform: scale(0.9);
+        }
+        .header .theme-toggle-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .header .theme-toggle-btn:active {
+            transform: scale(0.9);
+        }
+
+        .group-list-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 14px 16px;
+            margin-top: 4px;
+        }
+        .group-list-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+        .group-list-wrapper::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+        .group-list-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .group-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bottom-fixed {
+            background: var(--bg-secondary);
+            border-top: 1.5px solid var(--border-color);
+            padding: 12px 14px 10px;
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .bottom-fixed .btn-add {
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            border: none;
+            background: var(--btn-gradient);
+            color: #ffffff;
+            box-shadow: var(--btn-shadow), inset 0 1px 0 rgba(255,255,255,0.15);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .bottom-fixed .btn-add::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .bottom-fixed .btn-add:active::after {
+            opacity: 1;
+        }
+        .bottom-fixed .btn-add:active {
+            transform: scale(0.96);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        .bottom-fixed .btn-add i {
+            font-size: 22px;
+            color: #fcd34d;
+            text-shadow: 0 0 10px rgba(252, 211, 77, 0.3);
+        }
+        .bottom-fixed .btn-add .btn-text {
+            letter-spacing: 0.5px;
+        }
+        .bottom-fixed .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            padding: 0 4px;
+        }
+        .bottom-fixed .footer-info .footer-note {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        .bottom-fixed .footer-info .footer-prefix {
+            color: #60a5fa;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--prefix-bg);
+            padding: 2px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--prefix-border);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .bottom-fixed .footer-info .footer-prefix:hover {
+            opacity: 0.8;
+        }
+        .bottom-fixed .footer-info .footer-prefix:active {
+            transform: scale(0.95);
+        }
+
+        .group-item {
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: 0.2s, background 0.3s, border-color 0.3s;
+        }
+        .group-item .group-header-click {
+            padding: 16px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            touch-action: manipulation;
+            transition: 0.15s;
+            user-select: none;
+        }
+        .group-item .group-header-click:active {
+            background: var(--bg-hover);
+        }
+        .group-item .group-header-click .group-name {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .group-item .group-header-click .group-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .group-item .group-header-click .group-arrow {
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .group-item .group-header-click .group-arrow.open {
+            transform: rotate(180deg);
+        }
+        .group-item .group-tasks {
+            display: none;
+            padding: 0 12px 14px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-task);
+            border-radius: 0 0 14px 14px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .group-item .group-tasks.open {
+            display: block;
+        }
+        .group-item .group-add-task {
+            padding: 8px 0 4px;
+            text-align: center;
+        }
+        .group-item .group-add-task button {
+            background: none;
+            border: 1px dashed #60a5fa;
+            color: #60a5fa;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: 0.15s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .group-item .group-add-task button:active {
+            background: rgba(96,165,250,0.15);
+            transform: scale(0.95);
+        }
+        .task-item {
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: 0.15s, border-color 0.3s;
+            background: var(--bg-task);
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .task-item .task-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .task-item .task-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .task-item .task-title.done {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+        .task-item .task-check {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            accent-color: #60a5fa;
+            cursor: pointer;
+            margin-top: 2px;
+            touch-action: manipulation;
+            background: var(--bg-input);
+        }
+        .task-item .task-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .task-item .task-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 20px;
+            touch-action: manipulation;
+            transition: 0.1s;
+        }
+        .task-item .task-actions button:active {
+            transform: scale(0.9);
+        }
+        .task-item .task-actions .edit-btn:active {
+            color: #60a5fa;
+            background: rgba(96,165,250,0.15);
+        }
+        .task-item .task-actions .delete-btn:active {
+            color: #f87171;
+            background: rgba(248,113,113,0.15);
+        }
+        .task-item .task-actions .detail-btn:active {
+            color: #fbbf24;
+            background: rgba(251,191,36,0.15);
+        }
+        .task-item .task-subtitle {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: var(--bg-input);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border-right: 4px solid #60a5fa;
+            cursor: pointer;
+            transition: 0.15s;
+            user-select: all;
+            word-wrap: break-word;
+        }
+        .task-item .task-subtitle:active {
+            background: var(--bg-hover);
+        }
+        .task-item .task-source {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            padding-right: 4px;
+        }
+        .task-item .task-source span {
+            background: var(--prefix-bg);
+            padding: 1px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--prefix-border);
+            font-size: 11px;
+            color: #60a5fa;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px 0;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: var(--border-color);
+        }
+        .empty-state p {
+            font-size: 17px;
+        }
+
+        /* ===== مودال‌ها ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            animation: modalIn 0.25s ease;
+            box-shadow: 0 20px 60px var(--shadow-color);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        @keyframes modalIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            padding: 14px 20px 10px;
+            border-bottom: 1.5px solid var(--border-color);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .modal-header h2 {
+            font-size: 22px;
+            color: var(--text-primary);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .modal-header h2 i {
+            color: #60a5fa;
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 6px;
+        }
+        .modal-tabs button {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.15s;
+            touch-action: manipulation;
+        }
+        .modal-tabs button.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .modal-tabs button:active {
+            transform: scale(0.95);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 20px 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+        .modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 12px;
+        }
+        .modal-body .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .modal-body .form-group .input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .modal-body .form-group .input-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            min-height: 44px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        .modal-body .form-group .input-row input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .modal-body .form-group .input-row input::placeholder {
+            color: var(--text-muted);
+        }
+        .modal-body .form-group .input-row button {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 44px;
+            white-space: nowrap;
+        }
+        .modal-body .form-group .input-row button:active {
+            transform: scale(0.95);
+        }
+        .modal-body .form-group .path-status {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-body .form-group .path-status .path-text {
+            flex: 1;
+            word-break: break-all;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .modal-body .form-group .path-status .path-icon {
+            color: #34d399;
+            font-size: 16px;
+        }
+
+        .modal-body .library-list {
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-input);
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .modal-body .library-list .lib-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-body .library-list .lib-item:last-child {
+            border-bottom: none;
+        }
+        .modal-body .library-list .lib-item .lib-name {
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .modal-body .library-list .lib-item .lib-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .modal-body .library-list .lib-item .lib-actions button {
+            background: none;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            touch-action: manipulation;
+            color: var(--text-muted);
+        }
+        .modal-body .library-list .lib-item .lib-actions button:active {
+            background: var(--bg-hover);
+        }
+        .modal-body .library-list .lib-item .lib-actions .edit-btn:active {
+            color: #60a5fa;
+        }
+        .modal-body .library-list .lib-item .lib-actions .del-btn:active {
+            color: #f87171;
+            background: rgba(248,113,113,0.15);
+        }
+        .modal-body .library-list .lib-item .lib-actions .clear-tasks-btn {
+            color: #fbbf24;
+        }
+        .modal-body .library-list .lib-item .lib-actions .clear-tasks-btn:active {
+            color: #f59e0b;
+            background: rgba(251,191,36,0.15);
+        }
+        .modal-body .library-search {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 6px;
+            min-height: 44px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        .modal-body .library-search:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .modal-body .library-search::placeholder {
+            color: var(--text-muted);
+        }
+
+        .modal-body .prefix-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            min-height: 44px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            text-align: right;
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        .modal-body .prefix-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .modal-body .prefix-input::placeholder {
+            color: var(--text-muted);
+        }
+        .modal-body .merge-section {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+        .modal-body .merge-section .merge-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .modal-body .merge-section .merge-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            min-height: 44px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        .modal-body .merge-section .merge-row input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .modal-body .merge-section .merge-row button {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 44px;
+            white-space: nowrap;
+        }
+        .modal-body .merge-section .merge-row button:active {
+            transform: scale(0.95);
+        }
+        .modal-body .merge-section .merge-row .btn-merge {
+            background: #8b5cf6;
+            color: white;
+        }
+        .modal-body .merge-section .merge-row .btn-merge:active {
+            background: #7c3aed;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 10px 20px 14px;
+            border-top: 1.5px solid var(--border-color);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .modal-footer .settings-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+        .modal-footer .settings-actions button {
+            padding: 10px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: 0.15s;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .modal-footer .settings-actions button:active {
+            transform: scale(0.95);
+        }
+        .modal-footer .settings-actions .btn-export-settings {
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+        .modal-footer .settings-actions .btn-export-settings:active {
+            background: rgba(96,165,250,0.15);
+        }
+        .modal-footer .settings-actions .btn-backup-settings {
+            border-color: #34d399;
+            color: #34d399;
+        }
+        .modal-footer .settings-actions .btn-backup-settings:active {
+            background: rgba(52,211,153,0.15);
+        }
+        .modal-footer .settings-actions .btn-restore-settings {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+        .modal-footer .settings-actions .btn-restore-settings:active {
+            background: rgba(251,191,36,0.15);
+        }
+        .modal-footer .settings-actions .btn-restore-settings input {
+            display: none;
+        }
+        .modal-footer .settings-actions-row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .modal-footer .settings-actions-row2 button {
+            padding: 10px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: 0.15s;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .modal-footer .settings-actions-row2 button:active {
+            transform: scale(0.95);
+        }
+        .modal-footer .settings-actions-row2 .btn-priority-settings {
+            border-color: #a78bfa;
+            color: #a78bfa;
+        }
+        .modal-footer .settings-actions-row2 .btn-priority-settings:active {
+            background: rgba(167,139,250,0.15);
+        }
+        .modal-footer .settings-actions-row2 .btn-reset-settings {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: linear-gradient(135deg, #1a0a0a, #2a0a0a);
+            box-shadow: 0 0 20px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-footer .settings-actions-row2 .btn-reset-settings::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,100,100,0.15) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-footer .settings-actions-row2 .btn-reset-settings:active::after {
+            opacity: 1;
+        }
+        .modal-footer .settings-actions-row2 .btn-reset-settings:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 40px rgba(239,68,68,0.4);
+        }
+        .modal-footer .settings-actions-row2 .btn-close-settings {
+            border-color: var(--border-color);
+            color: var(--text-muted);
+        }
+        .modal-footer .settings-actions-row2 .btn-close-settings:active {
+            background: var(--bg-hover);
+        }
+
+        .modal-box-small {
+            max-width: 380px;
+        }
+        .modal-box-small .modal-body {
+            padding: 16px 20px;
+        }
+        .modal-box-small .priority-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        .modal-box-small .priority-options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            transition: 0.15s;
+        }
+        .modal-box-small .priority-options label:has(input:checked) {
+            border-color: #60a5fa;
+            background: rgba(96,165,250,0.1);
+        }
+        .modal-box-small .priority-options label input[type="radio"] {
+            accent-color: #60a5fa;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .modal-body .form-group input[type="text"],
+        .modal-body .form-group input[type="search"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            min-height: 48px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        .modal-body .form-group input[type="text"]:focus,
+        .modal-body .form-group input[type="search"]:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+        }
+        .modal-body .form-group input[type="text"]::placeholder,
+        .modal-body .form-group input[type="search"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 15px;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-item .detail-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .detail-item .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+            text-align: left;
+        }
+        .detail-task-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            padding: 4px 0 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+        .detail-task-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 4px 0 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .modal-actions button {
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 48px;
+            border: 1.5px solid var(--border-color);
+            transition: 0.15s;
+        }
+        .modal-actions button:active {
+            transform: scale(0.95);
+        }
+        .modal-actions .btn-confirm {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-color: #3b82f6;
+        }
+        .modal-actions .btn-cancel {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .modal-actions .btn-confirm:active {
+            background: #0f172a;
+        }
+        .modal-actions .btn-cancel:active {
+            background: var(--bg-hover);
+        }
+        .suggestions-list {
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-top: 4px;
+            background: var(--bg-input);
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .suggestions-list .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: 0.1s;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .suggestions-list .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .suggestions-list .suggestion-item:active {
+            background: var(--bg-hover);
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-input);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
+            margin-top: 10px;
+            color: var(--text-primary);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+        .modal-close-btn:active {
+            transform: scale(0.95);
+            background: var(--bg-hover);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15,17,23,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .loading-overlay.hidden {
+            display: none;
+        }
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #2a2d3a;
+            border-top: 4px solid #60a5fa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-overlay p {
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 10px 12px 8px; gap: 6px; }
+            .header .search-box input { font-size: 16px; min-height: 46px; padding: 10px 14px; padding-right: 38px; }
+            .header .search-box .search-icon { font-size: 16px; right: 14px; }
+            .header .search-box .search-clear { left: 8px; }
+            .header .settings-btn { font-size: 20px; padding: 6px; min-width: 40px; min-height: 40px; }
+            .header .theme-toggle-btn { font-size: 18px; padding: 6px; min-width: 40px; min-height: 40px; }
+            .group-list-wrapper { padding: 0 10px 12px; }
+            .task-item .task-title { font-size: 18px; }
+            .task-item .task-subtitle { font-size: 16px; }
+            .group-item .group-header-click .group-name { font-size: 18px; }
+            .bottom-fixed { padding: 10px 12px 10px; }
+            .bottom-fixed .btn-add { font-size: 17px; padding: 16px; min-height: 54px; }
+            .bottom-fixed .btn-add i { font-size: 20px; }
+            .modal-header { padding: 12px 16px 8px; }
+            .modal-header h2 { font-size: 20px; margin-bottom: 8px; }
+            .modal-tabs button { font-size: 14px; padding: 6px 8px; }
+            .modal-body { padding: 10px 16px 6px; }
+            .modal-footer { padding: 8px 16px 12px; }
+            .modal-footer .settings-actions { grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+            .modal-footer .settings-actions button { font-size: 12px; padding: 8px 4px; min-height: 36px; }
+            .modal-footer .settings-actions-row2 { grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+            .modal-footer .settings-actions-row2 button { font-size: 12px; padding: 8px 4px; min-height: 36px; }
+            .bottom-fixed .footer-info .footer-note { font-size: 11px; }
+            .bottom-fixed .footer-info .footer-prefix { font-size: 11px; padding: 1px 8px; }
+            .modal-box-small .priority-options label { font-size: 16px; padding: 6px 10px; }
+            .modal-body .form-group .input-row input { font-size: 14px; min-height: 40px; padding: 8px 12px; }
+            .modal-body .form-group .input-row button { font-size: 14px; min-height: 40px; padding: 8px 14px; }
+            .modal-body .form-group input[type="text"] { font-size: 15px; min-height: 42px; padding: 8px 12px; }
+            .modal-body .library-search { font-size: 14px; min-height: 40px; padding: 8px 12px; }
+            .modal-body .prefix-input { font-size: 14px; min-height: 40px; padding: 8px 12px; }
+            .modal-body .merge-section .merge-row input { font-size: 14px; min-height: 40px; padding: 8px 12px; }
+            .modal-body .merge-section .merge-row button { font-size: 14px; min-height: 40px; padding: 8px 14px; }
+            .modal-body .form-group .path-status { font-size: 12px; padding: 3px 8px; }
+        }
+        @media (max-width: 380px) {
+            .task-item .task-title { font-size: 17px; }
+            .task-item .task-subtitle { font-size: 15px; }
+            .modal-footer .settings-actions { grid-template-columns: 1fr 1fr; }
+            .modal-footer .settings-actions-row2 { grid-template-columns: 1fr 1fr; }
+        }
+        input, select, textarea, button {
+            font-size: 16px !important;
+        }
+        @media (max-width: 640px) {
+            input, select, textarea, button {
+                font-size: 16px !important;
+            }
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .fade-out {
+            animation: fadeOut 1s ease forwards;
+        }
+        .merge-status {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+<!-- لودینگ overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>در حال بارگذاری داده‌ها...</p>
+</div>
+
+<div class="container" id="appContainer">
+    <div class="header">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="جستجو..." oninput="handleSearch()" onfocus="closeAllGroups()">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fas fa-times-circle"></i></button>
+        </div>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="تغییر تم"><i class="fas fa-moon" id="themeIcon"></i></button>
+        <button class="settings-btn" onclick="openSettings()"><i class="fas fa-cog"></i></button>
+    </div>
+
+    <div class="group-list-wrapper">
+        <div class="group-list" id="groupList"></div>
+    </div>
+
+    <div class="bottom-fixed">
+        <button class="btn-add" onclick="openAddTask()">
+            <i class="fas fa-plus-circle"></i>
+            <span class="btn-text">وظیفه جدید</span>
+        </button>
+        <div class="footer-info">
+            <span class="footer-note">برای کپی زیرنویس کلیک کنید</span>
+            <span class="footer-prefix" id="footerPrefix" onclick="goToPrefixTab()">سربرگ: چک‌لیست</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== مودال تنظیمات ===== -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2><i class="fas fa-cog"></i> تنظیمات</h2>
+            <div class="modal-tabs">
+                <button class="active" data-tab="titles" onclick="switchTab('titles')">عناوین</button>
+                <button data-tab="groups" onclick="switchTab('groups')">گروه‌ها</button>
+                <button data-tab="prefix" onclick="switchTab('prefix')">سربرگ</button>
+            </div>
+        </div>
+
+        <div class="modal-body" id="settingsModalBody">
+            <div class="tab-content active" id="tab-titles">
+                <div class="form-group">
+                    <label>افزودن عنوان جدید</label>
+                    <div class="input-row">
+                        <input type="text" id="newTitleInput" placeholder="عنوان را وارد کنید...">
+                        <button onclick="addTitle()">افزودن</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>جستجو در عناوین</label>
+                    <input type="text" class="library-search" id="titleSearch" placeholder="جستجو..." oninput="renderTitles()">
+                </div>
+                <div class="library-list" id="titleList"></div>
+            </div>
+
+            <div class="tab-content" id="tab-groups">
+                <div class="form-group">
+                    <label>افزودن گروه جدید</label>
+                    <div class="input-row">
+                        <input type="text" id="newGroupInput" placeholder="نام گروه را وارد کنید...">
+                        <button onclick="addGroup()">افزودن</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>جستجو در گروه‌ها</label>
+                    <input type="text" class="library-search" id="groupSearch" placeholder="جستجو..." oninput="renderGroupsSettings()">
+                </div>
+                <div class="library-list" id="groupListSettings"></div>
+            </div>
+
+            <div class="tab-content" id="tab-prefix">
+                <div class="form-group">
+                    <label>سربرگ فایل پشتیبان</label>
+                    <input type="text" class="prefix-input" id="backupPrefix" placeholder="مثال: پروژه_الف" oninput="updatePrefix()">
+                    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">این سربرگ در نام فایل پشتیبان استفاده می‌شود</div>
+                </div>
+                <div class="form-group">
+                    <label>مسیر ذخیره فایل پشتیبان</label>
+                    <div class="input-row">
+                        <input type="text" class="path-input" id="backupPath" placeholder="مسیر پوشه مورد نظر..." readonly style="cursor:pointer;" onclick="selectBackupPath()">
+                        <button onclick="selectBackupPath()"><i class="fas fa-folder-open"></i> انتخاب</button>
+                    </div>
+                    <div class="path-status" id="pathStatus">
+                        <i class="fas fa-folder path-icon"></i>
+                        <span class="path-text" id="pathStatusText">هیچ مسیری انتخاب نشده است</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">با کلیک روی دکمه انتخاب، پوشه مورد نظر را انتخاب کنید</div>
+                </div>
+                <div class="form-group merge-section">
+                    <label>ادغام سربرگ‌ها</label>
+                    <div class="merge-row">
+                        <input type="text" id="mergeFileInput" placeholder="مسیر فایل پشتیبان..." readonly style="cursor:pointer;" onclick="document.getElementById('mergeFilePicker').click()">
+                        <input type="file" id="mergeFilePicker" accept=".json" style="display:none;" onchange="prepareMergeFile(event)">
+                        <button class="btn-merge" onclick="mergeBackup()"><i class="fas fa-code-branch"></i> ادغام</button>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">فایل پشتیبان دوم را انتخاب کرده و با داده‌های فعلی ادغام کنید</div>
+                    <div id="mergeStatus" class="merge-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="settings-actions">
+                <button class="btn-export-settings" onclick="exportExcel()"><i class="fas fa-file-excel"></i> اکسل</button>
+                <button class="btn-backup-settings" onclick="createBackup()"><i class="fas fa-download"></i> پشتیبان</button>
+                <button class="btn-restore-settings" onclick="document.getElementById('restoreInputSettings').click()">
+                    <i class="fas fa-upload"></i> بازیابی
+                    <input type="file" id="restoreInputSettings" accept=".json" onchange="restoreBackup(event)">
+                </button>
+            </div>
+            <div class="settings-actions-row2">
+                <button class="btn-priority-settings" onclick="openPriorityModal()"><i class="fas fa-sliders-h"></i> اولویت</button>
+                <button class="btn-reset-settings" onclick="resetAll()"><i class="fas fa-trash"></i> بازنشانی</button>
+                <button class="btn-close-settings" onclick="closeSettings()"><i class="fas fa-times"></i> بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== مودال اولویت‌بندی جستجو ===== -->
+<div class="modal-overlay" id="priorityModal">
+    <div class="modal-box modal-box-small">
+        <div class="modal-header" style="border-bottom:1.5px solid var(--border-color);padding:14px 20px;">
+            <h2 style="margin-bottom:0;"><i class="fas fa-sliders-h" style="color:#a78bfa;"></i> اولویت‌بندی جستجو</h2>
+        </div>
+        <div class="modal-body">
+            <div class="priority-options">
+                <label>
+                    <input type="radio" name="priorityMain" value="groups" onchange="applyPriorityFromModal('groups')"> جستجو در گروه‌ها
+                </label>
+                <label>
+                    <input type="radio" name="priorityMain" value="tasks" onchange="applyPriorityFromModal('tasks')"> جستجو در وظایف
+                </label>
+                <label>
+                    <input type="radio" name="priorityMain" value="both" onchange="applyPriorityFromModal('both')" checked> جستجو در هر دو
+                </label>
+            </div>
+            <button class="modal-close-btn" onclick="closePriorityModal()">بستن</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== مودال وظیفه جدید/ویرایش ===== -->
+<div class="modal-overlay" id="taskModal">
+    <div class="modal-box" style="display:flex;flex-direction:column;max-height:90vh;">
+        <div class="modal-header" style="border-bottom:1.5px solid var(--border-color);padding:14px 20px;">
+            <h2 id="taskModalTitle" style="margin-bottom:0;"><i class="fas fa-plus-circle" style="color:#60a5fa;"></i> وظیفه جدید</h2>
+        </div>
+        <div class="modal-body" style="padding:14px 20px;">
+            <div class="form-group">
+                <label>عنوان وظیفه</label>
+                <input type="text" id="taskTitle" placeholder="عنوان را وارد کنید..." oninput="suggestTitle(this.value)">
+                <div class="suggestions-list" id="titleSuggestions"></div>
+            </div>
+            <div class="form-group">
+                <label>زیرنویس (متن اصلی)</label>
+                <input type="text" id="taskSubtitle" placeholder="توضیحات اصلی..." style="font-weight:700;font-size:18px;">
+            </div>
+            <div class="form-group">
+                <label>گروه</label>
+                <input type="text" id="taskGroupInput" placeholder="نام گروه را وارد کنید..." oninput="suggestGroup(this.value)">
+                <div class="suggestions-list" id="groupSuggestions"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeTaskModal()">انصراف</button>
+                <button class="btn-confirm" id="taskConfirmBtn" onclick="confirmAddTask()">افزودن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== مودال جزئیات وظیفه ===== -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box" style="display:flex;flex-direction:column;max-height:80vh;">
+        <div class="modal-header" style="border-bottom:1.5px solid var(--border-color);padding:14px 20px;">
+            <h2 style="margin-bottom:0;"><i class="fas fa-info-circle" style="color:#fbbf24;"></i> جزئیات وظیفه</h2>
+        </div>
+        <div class="modal-body" style="padding:14px 20px;">
+            <div class="detail-task-title" id="detailTitle">عنوان وظیفه</div>
+            <div class="detail-task-subtitle" id="detailSubtitle">زیرنویس</div>
+            <div id="detailContent">
+                <div class="detail-item">
+                    <span class="detail-label">تاریخ ایجاد</span>
+                    <span class="detail-value" id="detailCreated">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">وضعیت</span>
+                    <span class="detail-value" id="detailStatus">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">تاریخ انجام</span>
+                    <span class="detail-value" id="detailDone">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">گروه</span>
+                    <span class="detail-value" id="detailGroup">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">سربرگ مبدأ</span>
+                    <span class="detail-value" id="detailSource">-</span>
+                </div>
+            </div>
+            <button class="modal-close-btn" onclick="closeDetailModal()">بستن</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== مدیریت تم ====================
+    let isDarkTheme = true;
+
+    function toggleTheme() {
+        isDarkTheme = !isDarkTheme;
+        document.body.classList.toggle('light-theme', !isDarkTheme);
+        document.getElementById('themeIcon').className = isDarkTheme ? 'fas fa-moon' : 'fas fa-sun';
+        try {
+            localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+        } catch(e) {}
+    }
+
+    function loadTheme() {
+        try {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light') {
+                isDarkTheme = false;
+                document.body.classList.add('light-theme');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+            }
+        } catch(e) {}
+    }
+
+    // ==================== توابع ذخیره و بارگذاری در localStorage ====================
+    function saveToLocalStorage() {
+        try {
+            const data = {
+                groups: groups,
+                tasks: tasks,
+                titleLibrary: titleLibrary,
+                nextGroupId: nextGroupId,
+                nextTaskId: nextTaskId,
+                backupPrefix: backupPrefix,
+                backupPath: backupPath
+            };
+            localStorage.setItem('checklistData', JSON.stringify(data));
+        } catch(e) {
+            console.warn('خطا در ذخیره در localStorage:', e);
+        }
+    }
+
+    function loadFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem('checklistData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.groups && data.groups.length > 0) {
+                    groups = data.groups;
+                    tasks = data.tasks || [];
+                    titleLibrary = data.titleLibrary || titleLibrary;
+                    nextGroupId = data.nextGroupId || groups.length + 1;
+                    nextTaskId = data.nextTaskId || tasks.length + 1;
+                    if (data.backupPrefix) {
+                        backupPrefix = data.backupPrefix;
+                        document.getElementById('backupPrefix').value = backupPrefix;
+                        document.getElementById('footerPrefix').textContent = 'سربرگ: ' + backupPrefix;
+                    }
+                    if (data.backupPath) {
+                        backupPath = data.backupPath;
+                        document.getElementById('backupPath').value = backupPath;
+                        updatePathStatus(backupPath);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        } catch(e) {
+            console.warn('خطا در بارگذاری از localStorage:', e);
+            return false;
+        }
+    }
+
+    // ==================== داده‌ها ====================
+    let titleLibrary = [
+        'تمرین صبحگاهی', 'برنامه‌ریزی روزانه', 'بررسی ایمیل‌ها',
+        'پاسخ به پیام‌ها', 'توسعه پروژه', 'مطالعه کتاب',
+        'تمرین زبان', 'ورزش روزانه', 'مدیتیشن',
+        'برنامه‌نویسی', 'طراحی UI', 'تحلیل داده',
+        'نوشتن مقاله', 'مرور پیشرفت', 'تنظیم اهداف'
+    ];
+
+    let groups = [
+        { id: 1, name: 'کارهای روزانه', source: 'چک‌لیست' },
+        { id: 2, name: 'پروژه‌ها', source: 'چک‌لیست' },
+        { id: 3, name: 'یادگیری', source: 'چک‌لیست' }
+    ];
+    let nextGroupId = 4;
+
+    let tasks = [
+        { id: 1, text: 'تمرین صبحگاهی', subtitle: '۳۰ دقیقه یوگا و مدیتیشن', done: false, groupId: 1, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' },
+        { id: 2, text: 'برنامه‌ریزی روزانه', subtitle: 'نوشتن اهداف و اولویت‌های روز', done: false, groupId: 1, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' },
+        { id: 3, text: 'بررسی ایمیل‌ها', subtitle: 'پاسخ به ایمیل‌های مهم', done: false, groupId: 1, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' },
+        { id: 4, text: 'توسعه پروژه اصلی', subtitle: 'تکمیل بخش احراز هویت', done: false, groupId: 2, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' },
+        { id: 5, text: 'مطالعه کتاب', subtitle: 'فصل ۳ - مفاهیم پیشرفته', done: false, groupId: 3, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' },
+        { id: 6, text: 'تمرین زبان انگلیسی', subtitle: 'لغات جدید و گرامر', done: false, groupId: 3, createdAt: new Date().toISOString(), doneAt: null, source: 'چک‌لیست' }
+    ];
+    let nextTaskId = 7;
+
+    let editingTaskId = null;
+    let openGroups = {};
+    let backupPrefix = 'چک‌لیست';
+    let backupPath = '';
+    let searchPriority = 'both';
+    let mergeFileData = null;
+    let directoryHandle = null;
+
+    // ==================== توابع تاریخ شمسی ====================
+    function toPersianDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '-';
+        
+        const persianDate = new Intl.DateTimeFormat('fa-IR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'Asia/Tehran'
+        }).format(date);
+        
+        return persianDate;
+    }
+
+    function getPersianTimestamp() {
+        const now = new Date();
+        const formatter = new Intl.DateTimeFormat('fa-IR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'Asia/Tehran'
+        });
+        const parts = formatter.formatToParts(now);
+        const year = parts.find(p => p.type === 'year').value;
+        const month = parts.find(p => p.type === 'month').value;
+        const day = parts.find(p => p.type === 'day').value;
+        const hour = parts.find(p => p.type === 'hour').value;
+        const minute = parts.find(p => p.type === 'minute').value;
+        const second = parts.find(p => p.type === 'second').value;
+        return `${year}_${month}_${day}_${hour}_${minute}_${second}`;
+    }
+
+    // ==================== توابع کمکی ====================
+    function getGroupName(id) {
+        const g = groups.find(g => g.id === id);
+        return g ? g.name : 'بدون گروه';
+    }
+
+    function getGroupIdByName(name) {
+        const g = groups.find(g => g.name === name);
+        return g ? g.id : null;
+    }
+
+    function getGroupTaskCount(groupId) {
+        return tasks.filter(t => t.groupId === groupId).length;
+    }
+
+    function toast(msg) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--bg-secondary);color:var(--text-primary);padding:12px 28px;border-radius:30px;font-size:15px;z-index:2000;box-shadow:0 8px 30px var(--shadow-color);border:1px solid var(--border-color);animation:fadeInOut 1.8s forwards;';
+        document.body.appendChild(t);
+        setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 1800);
+    }
+
+    function copyText(text) {
+        if (!text || text === 'بدون زیرنویس') return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => toast('کپی شد!')).catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); toast('کپی شد!'); } catch(e) { toast('کپی نشد!'); }
+        document.body.removeChild(ta);
+    }
+
+    // ==================== مدیریت مسیر پشتیبان ====================
+    function updatePathStatus(path) {
+        const statusText = document.getElementById('pathStatusText');
+        if (path && path.trim()) {
+            statusText.textContent = path;
+            statusText.style.color = 'var(--text-primary)';
+        } else {
+            statusText.textContent = 'هیچ مسیری انتخاب نشده است';
+            statusText.style.color = 'var(--text-muted)';
+        }
+    }
+
+    async function selectBackupPath() {
+        try {
+            // بررسی پشتیبانی از File System Access API
+            if (!('showDirectoryPicker' in window)) {
+                // Fallback: از کاربر بخواهیم مسیر را دستی وارد کند
+                const path = prompt('لطفاً مسیر پوشه مورد نظر را وارد کنید (مثال: C:/Backups/ یا /home/user/backups/)', backupPath);
+                if (path !== null && path.trim()) {
+                    backupPath = path.trim();
+                    document.getElementById('backupPath').value = backupPath;
+                    updatePathStatus(backupPath);
+                    saveToLocalStorage();
+                    toast('مسیر ذخیره شد: ' + backupPath);
+                }
+                return;
+            }
+
+            // استفاده از File System Access API
+            const handle = await window.showDirectoryPicker();
+            directoryHandle = handle;
+            
+            // دریافت نام و مسیر
+            const pathName = handle.name;
+            // برای نمایش مسیر کامل، از name استفاده می‌کنیم
+            backupPath = pathName;
+            document.getElementById('backupPath').value = pathName;
+            updatePathStatus(pathName);
+            saveToLocalStorage();
+            toast('پوشه انتخاب شد: ' + pathName);
+        } catch (err) {
+            if (err.name !== 'AbortError' && err.name !== 'SecurityError') {
+                console.warn('خطا در انتخاب پوشه:', err);
+                // Fallback
+                const path = prompt('لطفاً مسیر پوشه مورد نظر را وارد کنید:', backupPath);
+                if (path !== null && path.trim()) {
+                    backupPath = path.trim();
+                    document.getElementById('backupPath').value = backupPath;
+                    updatePathStatus(backupPath);
+                    saveToLocalStorage();
+                    toast('مسیر ذخیره شد: ' + backupPath);
+                }
+            }
+        }
+    }
+
+    async function saveFileToDirectory(fileName, content) {
+        if (directoryHandle) {
+            try {
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(content);
+                await writable.close();
+                return true;
+            } catch (err) {
+                console.warn('خطا در ذخیره در پوشه انتخاب شده:', err);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // ==================== بستن همه گروه‌ها ====================
+    function closeAllGroups() {
+        openGroups = {};
+        renderGroups(document.getElementById('searchInput').value);
+    }
+
+    // ==================== رندر گروه‌ها ====================
+    function renderGroups(filter = '') {
+        const container = document.getElementById('groupList');
+        container.innerHTML = '';
+
+        let filteredGroups = groups;
+        if (filter.trim()) {
+            const f = filter.trim().toLowerCase();
+            if (searchPriority === 'groups') {
+                filteredGroups = groups.filter(g => g.name.toLowerCase().includes(f));
+            } else if (searchPriority === 'tasks') {
+                const taskGroups = new Set();
+                tasks.forEach(t => {
+                    if (t.text.toLowerCase().includes(f) || (t.subtitle && t.subtitle.toLowerCase().includes(f))) {
+                        taskGroups.add(t.groupId);
+                    }
+                });
+                filteredGroups = groups.filter(g => taskGroups.has(g.id));
+            } else {
+                const groupMatch = groups.filter(g => g.name.toLowerCase().includes(f));
+                const taskMatchGroups = new Set();
+                tasks.forEach(t => {
+                    if (t.text.toLowerCase().includes(f) || (t.subtitle && t.subtitle.toLowerCase().includes(f))) {
+                        taskMatchGroups.add(t.groupId);
+                    }
+                });
+                const taskMatch = groups.filter(g => taskMatchGroups.has(g.id));
+                const merged = [...groupMatch, ...taskMatch];
+                filteredGroups = merged.filter((g, i, self) => self.findIndex(g2 => g2.id === g.id) === i);
+            }
+        }
+
+        if (filteredGroups.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>هیچ گروهی یافت نشد</p>
+                </div>
+            `;
+            return;
+        }
+
+        filteredGroups.forEach(group => {
+            const groupTasks = tasks.filter(t => t.groupId === group.id);
+            const isOpen = openGroups[group.id] || false;
+
+            const div = document.createElement('div');
+            div.className = 'group-item';
+            div.dataset.groupId = group.id;
+
+            const header = document.createElement('div');
+            header.className = 'group-header-click';
+            header.onclick = function() {
+                toggleGroup(group.id);
+            };
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'group-name';
+            nameSpan.textContent = group.name;
+
+            const countSpan = document.createElement('span');
+            countSpan.className = 'group-count';
+            countSpan.textContent = `(${groupTasks.length} وظیفه)`;
+
+            const arrow = document.createElement('i');
+            arrow.className = `fas fa-chevron-down group-arrow ${isOpen ? 'open' : ''}`;
+
+            const headerRight = document.createElement('div');
+            headerRight.style.cssText = 'display:flex;align-items:center;gap:10px;';
+            headerRight.appendChild(nameSpan);
+            headerRight.appendChild(countSpan);
+
+            header.appendChild(headerRight);
+            header.appendChild(arrow);
+
+            const tasksContainer = document.createElement('div');
+            tasksContainer.className = `group-tasks ${isOpen ? 'open' : ''}`;
+
+            if (isOpen) {
+                const addDiv = document.createElement('div');
+                addDiv.className = 'group-add-task';
+                const addBtn = document.createElement('button');
+                addBtn.innerHTML = '<i class="fas fa-plus"></i> افزودن وظیفه';
+                addBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    openAddTaskWithGroup(group.id);
+                };
+                addDiv.appendChild(addBtn);
+                tasksContainer.appendChild(addDiv);
+            }
+
+            let displayTasks = groupTasks;
+            if (filter.trim()) {
+                const f = filter.trim().toLowerCase();
+                if (searchPriority === 'tasks' || searchPriority === 'both') {
+                    displayTasks = groupTasks.filter(t => 
+                        t.text.toLowerCase().includes(f) || 
+                        (t.subtitle && t.subtitle.toLowerCase().includes(f))
+                    );
+                } else {
+                    displayTasks = [];
+                }
+            }
+
+            if (displayTasks.length === 0 && isOpen) {
+                const empty = document.createElement('div');
+                empty.style.cssText = 'padding:20px 0;text-align:center;color:var(--text-muted);font-size:15px;';
+                empty.textContent = 'هیچ وظیفه‌ای در این گروه یافت نشد';
+                tasksContainer.appendChild(empty);
+            } else {
+                displayTasks.forEach(task => {
+                    const taskDiv = createTaskElement(task);
+                    tasksContainer.appendChild(taskDiv);
+                });
+            }
+
+            div.appendChild(header);
+            div.appendChild(tasksContainer);
+            container.appendChild(div);
+        });
+    }
+
+    // ==================== ایجاد المان وظیفه ====================
+    function createTaskElement(task) {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.dataset.taskId = task.id;
+
+        const top = document.createElement('div');
+        top.className = 'task-top';
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.className = 'task-check';
+        check.checked = task.done;
+        check.onchange = function() {
+            task.done = this.checked;
+            if (task.done) {
+                task.doneAt = new Date().toISOString();
+            } else {
+                task.doneAt = null;
+            }
+            saveToLocalStorage();
+            renderGroups(document.getElementById('searchInput').value);
+        };
+
+        const title = document.createElement('span');
+        title.className = `task-title ${task.done ? 'done' : ''}`;
+        title.textContent = task.text;
+
+        const actions = document.createElement('div');
+        actions.className = 'task-actions';
+
+        const detailBtn = document.createElement('button');
+        detailBtn.className = 'detail-btn';
+        detailBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
+        detailBtn.onclick = function(e) {
+            e.stopPropagation();
+            openDetailModal(task.id);
+        };
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-btn';
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.onclick = function(e) {
+            e.stopPropagation();
+            openEditTask(task.id);
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (confirm('آیا از حذف این وظیفه اطمینان دارید؟')) {
+                tasks = tasks.filter(t => t.id !== task.id);
+                saveToLocalStorage();
+                renderGroups(document.getElementById('searchInput').value);
+                toast('وظیفه حذف شد');
+            }
+        };
+
+        actions.appendChild(detailBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        top.appendChild(check);
+        top.appendChild(title);
+        top.appendChild(actions);
+
+        div.appendChild(top);
+
+        if (task.subtitle && task.subtitle !== 'بدون زیرنویس') {
+            const sub = document.createElement('div');
+            sub.className = 'task-subtitle';
+            sub.textContent = task.subtitle;
+            sub.onclick = function(e) {
+                e.stopPropagation();
+                copyText(task.subtitle);
+            };
+            div.appendChild(sub);
+        }
+
+        if (task.source && task.source !== 'چک‌لیست') {
+            const sourceDiv = document.createElement('div');
+            sourceDiv.className = 'task-source';
+            sourceDiv.innerHTML = `<span>📌 ${task.source}</span>`;
+            div.appendChild(sourceDiv);
+        }
+
+        return div;
+    }
+
+    // ==================== مودال جزئیات ====================
+    function openDetailModal(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        document.getElementById('detailTitle').textContent = task.text;
+        document.getElementById('detailSubtitle').textContent = task.subtitle || 'بدون زیرنویس';
+        document.getElementById('detailCreated').textContent = toPersianDate(task.createdAt);
+        document.getElementById('detailStatus').textContent = task.done ? '✅ انجام شده' : '⏳ در انتظار';
+        document.getElementById('detailDone').textContent = task.done ? toPersianDate(task.doneAt) : 'انجام نشده';
+        document.getElementById('detailGroup').textContent = getGroupName(task.groupId);
+        document.getElementById('detailSource').textContent = task.source || 'چک‌لیست';
+
+        document.getElementById('detailModal').classList.add('active');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // ==================== باز/بسته کردن گروه ====================
+    function toggleGroup(groupId) {
+        openGroups[groupId] = !openGroups[groupId];
+        renderGroups(document.getElementById('searchInput').value);
+    }
+
+    // ==================== جستجو ====================
+    function handleSearch() {
+        const val = document.getElementById('searchInput').value;
+        document.getElementById('searchClear').classList.toggle('show', val.length > 0);
+        renderGroups(val);
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchClear').classList.remove('show');
+        renderGroups('');
+    }
+
+    // ==================== هدایت به تب سربرگ ====================
+    function goToPrefixTab() {
+        openSettings();
+        switchTab('prefix');
+    }
+
+    // ==================== اولویت‌بندی جستجو ====================
+    function applyPriority(value) {
+        searchPriority = value;
+        document.querySelectorAll('input[name="priorityMain"]').forEach(el => {
+            el.checked = (el.value === value);
+        });
+        handleSearch();
+        toast('اولویت جستجو: ' + (value === 'groups' ? 'گروه‌ها' : value === 'tasks' ? 'وظایف' : 'هر دو'));
+    }
+
+    function applyPriorityFromModal(value) {
+        applyPriority(value);
+        closePriorityModal();
+    }
+
+    function openPriorityModal() {
+        document.querySelectorAll('input[name="priorityMain"]').forEach(el => {
+            el.checked = (el.value === searchPriority);
+        });
+        document.getElementById('priorityModal').classList.add('active');
+    }
+
+    function closePriorityModal() {
+        document.getElementById('priorityModal').classList.remove('active');
+    }
+
+    // ==================== پیشنهادات عنوان ====================
+    function suggestTitle(value) {
+        const container = document.getElementById('titleSuggestions');
+        container.innerHTML = '';
+        if (!value.trim()) return;
+
+        const f = value.trim().toLowerCase();
+        const suggestions = [];
+        
+        titleLibrary.forEach(t => {
+            if (t.toLowerCase().includes(f) && !suggestions.includes(t)) {
+                suggestions.push(t);
+            }
+        });
+        
+        tasks.forEach(t => {
+            if (t.text.toLowerCase().includes(f) && !suggestions.includes(t.text)) {
+                suggestions.push(t.text);
+            }
+        });
+
+        if (suggestions.length === 0) return;
+
+        suggestions.slice(0, 5).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.textContent = item;
+            div.onclick = function() {
+                document.getElementById('taskTitle').value = item;
+                container.innerHTML = '';
+            };
+            container.appendChild(div);
+        });
+    }
+
+    // ==================== پیشنهادات گروه ====================
+    function suggestGroup(value) {
+        const container = document.getElementById('groupSuggestions');
+        container.innerHTML = '';
+        if (!value.trim()) return;
+
+        const f = value.trim().toLowerCase();
+        const suggestions = groups.filter(g => g.name.toLowerCase().includes(f));
+
+        if (suggestions.length === 0) return;
+
+        suggestions.slice(0, 5).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.textContent = item.name;
+            div.onclick = function() {
+                document.getElementById('taskGroupInput').value = item.name;
+                container.innerHTML = '';
+            };
+            container.appendChild(div);
+        });
+    }
+
+    // ==================== مودال وظیفه ====================
+    function openAddTask() {
+        if (groups.length === 0) {
+            alert('لطفاً ابتدا یک گروه در تنظیمات ایجاد کنید.');
+            return;
+        }
+        editingTaskId = null;
+        document.getElementById('taskModalTitle').innerHTML = '<i class="fas fa-plus-circle" style="color:#60a5fa;"></i> وظیفه جدید';
+        document.getElementById('taskConfirmBtn').textContent = 'افزودن';
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskSubtitle').value = '';
+        document.getElementById('taskGroupInput').value = '';
+        document.getElementById('titleSuggestions').innerHTML = '';
+        document.getElementById('groupSuggestions').innerHTML = '';
+        document.getElementById('taskModal').classList.add('active');
+        setTimeout(() => document.getElementById('taskTitle').focus(), 150);
+    }
+
+    function openAddTaskWithGroup(groupId) {
+        const group = groups.find(g => g.id === groupId);
+        if (!group) return;
+        editingTaskId = null;
+        document.getElementById('taskModalTitle').innerHTML = '<i class="fas fa-plus-circle" style="color:#60a5fa;"></i> وظیفه جدید';
+        document.getElementById('taskConfirmBtn').textContent = 'افزودن';
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskSubtitle').value = '';
+        document.getElementById('taskGroupInput').value = group.name;
+        document.getElementById('titleSuggestions').innerHTML = '';
+        document.getElementById('groupSuggestions').innerHTML = '';
+        document.getElementById('taskModal').classList.add('active');
+        setTimeout(() => document.getElementById('taskTitle').focus(), 150);
+    }
+
+    function openEditTask(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        editingTaskId = taskId;
+        document.getElementById('taskModalTitle').innerHTML = '<i class="fas fa-edit" style="color:#60a5fa;"></i> ویرایش وظیفه';
+        document.getElementById('taskConfirmBtn').textContent = 'ویرایش';
+        document.getElementById('taskTitle').value = task.text;
+        document.getElementById('taskSubtitle').value = task.subtitle || '';
+        document.getElementById('taskGroupInput').value = getGroupName(task.groupId);
+        document.getElementById('titleSuggestions').innerHTML = '';
+        document.getElementById('groupSuggestions').innerHTML = '';
+        document.getElementById('taskModal').classList.add('active');
+        setTimeout(() => document.getElementById('taskTitle').focus(), 150);
+    }
+
+    function closeTaskModal() {
+        document.getElementById('taskModal').classList.remove('active');
+        editingTaskId = null;
+    }
+
+    function confirmAddTask() {
+        const title = document.getElementById('taskTitle').value.trim();
+        if (!title) { alert('لطفاً عنوان را وارد کنید.'); return; }
+        const subtitle = document.getElementById('taskSubtitle').value.trim();
+        const groupName = document.getElementById('taskGroupInput').value.trim();
+        
+        if (!groupName) { alert('لطفاً گروه را وارد کنید.'); return; }
+        
+        let groupId = getGroupIdByName(groupName);
+        if (!groupId) {
+            groupId = nextGroupId++;
+            groups.push({ id: groupId, name: groupName, source: backupPrefix });
+            toast('گروه جدید ایجاد شد');
+        }
+
+        if (!titleLibrary.includes(title)) {
+            titleLibrary.push(title);
+        }
+
+        if (editingTaskId) {
+            const task = tasks.find(t => t.id === editingTaskId);
+            if (task) {
+                task.text = title;
+                task.subtitle = subtitle || 'بدون زیرنویس';
+                task.groupId = groupId;
+                toast('وظیفه ویرایش شد');
+            }
+        } else {
+            tasks.push({ 
+                id: nextTaskId++, 
+                text: title, 
+                subtitle: subtitle || 'بدون زیرنویس', 
+                done: false, 
+                groupId: groupId,
+                createdAt: new Date().toISOString(),
+                doneAt: null,
+                source: backupPrefix
+            });
+            toast('وظیفه اضافه شد');
+        }
+
+        saveToLocalStorage();
+        closeTaskModal();
+        renderGroups(document.getElementById('searchInput').value);
+        setTimeout(() => {
+            openGroups[groupId] = true;
+            renderGroups(document.getElementById('searchInput').value);
+        }, 100);
+    }
+
+    // ==================== تنظیمات ====================
+    function openSettings() {
+        renderTitles();
+        renderGroupsSettings();
+        document.getElementById('backupPrefix').value = backupPrefix;
+        document.getElementById('backupPath').value = backupPath;
+        updatePathStatus(backupPath);
+        document.getElementById('settingsModal').classList.add('active');
+        document.getElementById('settingsModalBody').scrollTop = 0;
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.modal-tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.modal-tabs button[data-tab="${tab}"]`).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById('settingsModalBody').scrollTop = 0;
+    }
+
+    // ===== مدیریت سربرگ =====
+    function updatePrefix() {
+        const val = document.getElementById('backupPrefix').value.trim();
+        backupPrefix = val || 'چک‌لیست';
+        document.getElementById('footerPrefix').textContent = 'سربرگ: ' + backupPrefix;
+        saveToLocalStorage();
+    }
+
+    // ===== ادغام سربرگ‌ها =====
+    function prepareMergeFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                mergeFileData = JSON.parse(e.target.result);
+                document.getElementById('mergeFileInput').value = file.name;
+                const statusEl = document.getElementById('mergeStatus');
+                statusEl.textContent = '✅ فایل آماده ادغام: ' + file.name;
+                statusEl.style.color = '#34d399';
+                statusEl.classList.remove('fade-out');
+            } catch(error) {
+                document.getElementById('mergeStatus').textContent = '❌ خطا در خواندن فایل';
+                document.getElementById('mergeStatus').style.color = '#f87171';
+                mergeFileData = null;
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function mergeBackup() {
+        if (!mergeFileData) {
+            alert('لطفاً ابتدا یک فایل پشتیبان برای ادغام انتخاب کنید.');
+            return;
+        }
+        if (!mergeFileData.groups || !mergeFileData.tasks) {
+            alert('فایل پشتیبان معتبر نیست.');
+            return;
+        }
+
+        const sourcePrefix = mergeFileData.backupPrefix || 'بدون سربرگ';
+        let mergedGroups = 0;
+        let mergedTasks = 0;
+
+        mergeFileData.groups.forEach(g => {
+            const existingGroup = groups.find(eg => eg.id === g.id);
+            if (!existingGroup) {
+                const groupByName = groups.find(eg => eg.name === g.name);
+                if (!groupByName) {
+                    groups.push({ 
+                        id: g.id || nextGroupId++, 
+                        name: g.name, 
+                        source: sourcePrefix 
+                    });
+                    mergedGroups++;
+                }
+            }
+        });
+
+        mergeFileData.tasks.forEach(t => {
+            let targetGroup = groups.find(g => g.id === t.groupId);
+            if (!targetGroup && t.groupName) {
+                targetGroup = groups.find(g => g.name === t.groupName);
+            }
+
+            if (targetGroup) {
+                const exists = tasks.some(et => 
+                    et.id === t.id || 
+                    (et.text === t.text && et.groupId === targetGroup.id)
+                );
+                
+                if (!exists) {
+                    tasks.push({
+                        id: t.id || nextTaskId++,
+                        text: t.text,
+                        subtitle: t.subtitle || 'بدون زیرنویس',
+                        done: t.done || false,
+                        groupId: targetGroup.id,
+                        createdAt: t.createdAt || new Date().toISOString(),
+                        doneAt: t.doneAt || null,
+                        source: sourcePrefix
+                    });
+                    mergedTasks++;
+                }
+            }
+        });
+
+        if (mergeFileData.nextGroupId > nextGroupId) {
+            nextGroupId = mergeFileData.nextGroupId;
+        }
+        if (mergeFileData.nextTaskId > nextTaskId) {
+            nextTaskId = mergeFileData.nextTaskId;
+        }
+
+        const statusEl = document.getElementById('mergeStatus');
+        statusEl.textContent = `✅ ادغام کامل شد - ${mergedGroups} گروه و ${mergedTasks} وظیفه اضافه شد`;
+        statusEl.style.color = '#34d399';
+        
+        setTimeout(() => {
+            statusEl.classList.add('fade-out');
+            setTimeout(() => {
+                statusEl.textContent = '';
+                statusEl.classList.remove('fade-out');
+            }, 1000);
+        }, 4000);
+
+        document.getElementById('mergeFileInput').value = '';
+        mergeFileData = null;
+        
+        saveToLocalStorage();
+        renderGroupsSettings();
+        renderTitles();
+        renderGroups(document.getElementById('searchInput').value);
+        
+        toast(`${mergedGroups} گروه و ${mergedTasks} وظیفه از سربرگ "${sourcePrefix}" ادغام شد`);
+    }
+
+    // ===== مدیریت عناوین =====
+    function addTitle() {
+        const input = document.getElementById('newTitleInput');
+        const val = input.value.trim();
+        if (!val) { alert('لطفاً عنوان را وارد کنید.'); return; }
+        if (titleLibrary.includes(val)) { alert('این عنوان قبلاً وجود دارد.'); return; }
+        titleLibrary.push(val);
+        input.value = '';
+        renderTitles();
+        saveToLocalStorage();
+        toast('عنوان اضافه شد');
+    }
+
+    function renderTitles() {
+        const search = document.getElementById('titleSearch').value.trim().toLowerCase();
+        const container = document.getElementById('titleList');
+        container.innerHTML = '';
+        let filtered = titleLibrary;
+        if (search) filtered = titleLibrary.filter(t => t.toLowerCase().includes(search));
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);">نتیجه‌ای یافت نشد</div>';
+            return;
+        }
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'lib-item';
+            div.innerHTML = `
+                <span class="lib-name">${item}</span>
+                <div class="lib-actions">
+                    <button class="edit-btn" onclick="editTitle('${item.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button>
+                    <button class="del-btn" onclick="deleteTitle('${item.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function editTitle(oldVal) {
+        const newVal = prompt('ویرایش عنوان:', oldVal);
+        if (newVal && newVal.trim() && newVal.trim() !== oldVal) {
+            const idx = titleLibrary.indexOf(oldVal);
+            if (idx !== -1) {
+                if (titleLibrary.includes(newVal.trim())) { alert('این عنوان قبلاً وجود دارد.'); return; }
+                titleLibrary[idx] = newVal.trim();
+                renderTitles();
+                saveToLocalStorage();
+                toast('ویرایش شد');
+            }
+        }
+    }
+
+    function deleteTitle(item) {
+        if (confirm(`آیا از حذف "${item}" اطمینان دارید؟`)) {
+            const idx = titleLibrary.indexOf(item);
+            if (idx !== -1) {
+                titleLibrary.splice(idx, 1);
+                renderTitles();
+                saveToLocalStorage();
+                toast('حذف شد');
+            }
+        }
+    }
+
+    // ===== مدیریت گروه‌ها =====
+    function addGroup() {
+        const input = document.getElementById('newGroupInput');
+        const val = input.value.trim();
+        if (!val) { alert('لطفاً نام گروه را وارد کنید.'); return; }
+        if (groups.some(g => g.name === val)) { alert('این گروه قبلاً وجود دارد.'); return; }
+        groups.push({ id: nextGroupId++, name: val, source: backupPrefix });
+        input.value = '';
+        renderGroupsSettings();
+        renderGroups(document.getElementById('searchInput').value);
+        saveToLocalStorage();
+        toast('گروه اضافه شد');
+    }
+
+    function renderGroupsSettings() {
+        const search = document.getElementById('groupSearch').value.trim().toLowerCase();
+        const container = document.getElementById('groupListSettings');
+        container.innerHTML = '';
+        let filtered = groups;
+        if (search) filtered = groups.filter(g => g.name.toLowerCase().includes(search));
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);">نتیجه‌ای یافت نشد</div>';
+            return;
+        }
+        filtered.forEach(group => {
+            const taskCount = getGroupTaskCount(group.id);
+            const hasTasks = taskCount > 0;
+            
+            const div = document.createElement('div');
+            div.className = 'lib-item';
+            
+            let actionsHTML = `
+                <button class="edit-btn" onclick="editGroup(${group.id}, '${group.name.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button>
+            `;
+            
+            if (hasTasks) {
+                actionsHTML += `
+                    <button class="clear-tasks-btn" onclick="clearGroupTasks(${group.id})" title="حذف کلیه وظایف این گروه"><i class="fas fa-trash-alt"></i> پاک‌سازی</button>
+                    <button class="del-btn" onclick="showCannotDeleteAlert('${group.name}')" title="این گروه دارای وظیفه است و قابل حذف نمی‌باشد"><i class="fas fa-ban"></i></button>
+                `;
+            } else {
+                actionsHTML += `
+                    <button class="del-btn" onclick="deleteGroup(${group.id})"><i class="fas fa-trash"></i></button>
+                `;
+            }
+            
+            div.innerHTML = `
+                <span class="lib-name">${group.name} <span style="font-size:13px;color:var(--text-muted);">(${taskCount} وظیفه)${group.source && group.source !== 'چک‌لیست' ? ' 📌' + group.source : ''}</span></span>
+                <div class="lib-actions">${actionsHTML}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function showCannotDeleteAlert(groupName) {
+        alert(`گروه "${groupName}" دارای وظیفه است و قابل حذف نمی‌باشد.\nلطفاً ابتدا وظایف آن را پاک‌سازی کنید.`);
+    }
+
+    function clearGroupTasks(groupId) {
+        const group = groups.find(g => g.id === groupId);
+        if (!group) return;
+        const taskCount = getGroupTaskCount(groupId);
+        if (taskCount === 0) return;
+        
+        if (confirm(`آیا از حذف تمام ${taskCount} وظیفه گروه "${group.name}" اطمینان دارید؟`)) {
+            tasks = tasks.filter(t => t.groupId !== groupId);
+            renderGroupsSettings();
+            renderGroups(document.getElementById('searchInput').value);
+            saveToLocalStorage();
+            toast(`${taskCount} وظیفه از گروه "${group.name}" حذف شد`);
+        }
+    }
+
+    function editGroup(id, oldName) {
+        const newVal = prompt('ویرایش نام گروه:', oldName);
+        if (newVal && newVal.trim() && newVal.trim() !== oldName) {
+            const group = groups.find(g => g.id === id);
+            if (group) {
+                if (groups.some(g => g.name === newVal.trim() && g.id !== id)) { 
+                    alert('این گروه قبلاً وجود دارد.'); 
+                    return; 
+                }
+                group.name = newVal.trim();
+                renderGroupsSettings();
+                renderGroups(document.getElementById('searchInput').value);
+                saveToLocalStorage();
+                toast('ویرایش شد');
+            }
+        }
+    }
+
+    function deleteGroup(id) {
+        const group = groups.find(g => g.id === id);
+        if (!group) return;
+        const taskCount = getGroupTaskCount(id);
+        if (taskCount > 0) {
+            alert(`گروه "${group.name}" دارای ${taskCount} وظیفه است و قابل حذف نمی‌باشد.\nلطفاً ابتدا وظایف آن را پاک‌سازی کنید.`);
+            return;
+        }
+        if (confirm(`آیا از حذف گروه "${group.name}" اطمینان دارید؟`)) {
+            groups = groups.filter(g => g.id !== id);
+            renderGroupsSettings();
+            renderGroups(document.getElementById('searchInput').value);
+            saveToLocalStorage();
+            toast('گروه حذف شد');
+        }
+    }
+
+    // ==================== خروجی اکسل ====================
+    async function exportExcel() {
+        const data = [];
+        data.push(['گروه', 'عنوان وظیفه', 'زیرنویس', 'انجام شد', 'تاریخ ایجاد', 'تاریخ انجام', 'سربرگ مبدأ']);
+        groups.forEach(g => {
+            const groupTasks = tasks.filter(t => t.groupId === g.id);
+            groupTasks.forEach(t => {
+                data.push([
+                    g.name, 
+                    t.text, 
+                    t.subtitle || '', 
+                    t.done ? 'بله' : 'خیر',
+                    toPersianDate(t.createdAt),
+                    t.done ? toPersianDate(t.doneAt) : '',
+                    t.source || 'چک‌لیست'
+                ]);
+            });
+        });
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{ wch: 25 }, { wch: 40 }, { wch: 35 }, { wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 20 }];
+        XLSX.utils.book_append_sheet(wb, ws, 'چک لیست');
+        const prefix = backupPrefix || 'چک‌لیست';
+        const timestamp = getPersianTimestamp();
+        const fileName = `${prefix}_${timestamp}.xlsx`;
+        
+        // تلاش برای ذخیره در پوشه انتخاب شده
+        if (directoryHandle) {
+            try {
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                const buffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+                await writable.write(buffer);
+                await writable.close();
+                toast('خروجی اکسل در پوشه انتخاب شده ذخیره شد');
+                return;
+            } catch (err) {
+                console.warn('خطا در ذخیره در پوشه انتخاب شده، ذخیره در دانلود:', err);
+            }
+        }
+        
+        // Fallback: دانلود معمولی
+        XLSX.writeFile(wb, fileName);
+        toast('خروجی اکسل گرفته شد');
+    }
+
+    // ==================== پشتیبان ====================
+    async function createBackup() {
+        const data = {
+            groups: groups,
+            tasks: tasks,
+            titleLibrary: titleLibrary,
+            nextGroupId: nextGroupId,
+            nextTaskId: nextTaskId,
+            backupPrefix: backupPrefix
+        };
+        const json = JSON.stringify(data, null, 2);
+        const prefix = backupPrefix || 'چک‌لیست';
+        const timestamp = getPersianTimestamp();
+        const fileName = `${prefix}_${timestamp}.json`;
+        
+        // تلاش برای ذخیره در پوشه انتخاب شده
+        if (directoryHandle) {
+            try {
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(json);
+                await writable.close();
+                toast('پشتیبان در پوشه انتخاب شده ذخیره شد');
+                return;
+            } catch (err) {
+                console.warn('خطا در ذخیره در پوشه انتخاب شده، ذخیره در دانلود:', err);
+            }
+        }
+        
+        // Fallback: دانلود معمولی
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('پشتیبان گرفته شد');
+    }
+
+    function restoreBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data.groups || !data.tasks) {
+                    alert('فایل پشتیبان معتبر نیست.');
+                    return;
+                }
+                if (confirm('آیا از بازنشانی داده‌های فعلی و بازیابی از پشتیبان اطمینان دارید؟')) {
+                    groups = data.groups;
+                    tasks = data.tasks;
+                    titleLibrary = data.titleLibrary || titleLibrary;
+                    nextGroupId = data.nextGroupId || groups.length + 1;
+                    nextTaskId = data.nextTaskId || tasks.length + 1;
+                    if (data.backupPrefix) {
+                        backupPrefix = data.backupPrefix;
+                        document.getElementById('backupPrefix').value = backupPrefix;
+                        document.getElementById('footerPrefix').textContent = 'سربرگ: ' + backupPrefix;
+                    }
+                    openGroups = {};
+                    saveToLocalStorage();
+                    renderGroupsSettings();
+                    renderTitles();
+                    renderGroups('');
+                    closeSettings();
+                    toast('بازیابی با موفقیت انجام شد');
+                }
+                event.target.value = '';
+            } catch (error) {
+                alert('خطا در خواندن فایل: ' + error.message);
+                event.target.value = '';
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // ==================== بازنشانی کامل ====================
+    function resetAll() {
+        if (confirm('آیا از بازنشانی کامل تمام داده‌ها اطمینان دارید؟ این عمل غیرقابل بازگشت است.')) {
+            if (confirm('تأیید نهایی: همه گروه‌ها و وظایف حذف خواهند شد.')) {
+                groups = [];
+                tasks = [];
+                titleLibrary = [];
+                nextGroupId = 1;
+                nextTaskId = 1;
+                openGroups = {};
+                saveToLocalStorage();
+                renderGroupsSettings();
+                renderTitles();
+                renderGroups('');
+                closeSettings();
+                toast('همه داده‌ها بازنشانی شدند');
+            }
+        }
+    }
+
+    // ==================== بستن مودال با کلیک روی پس‌زمینه ====================
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+    });
+
+    // ==================== بارگذاری اولیه ====================
+    function initApp() {
+        loadTheme();
+        const loading = document.getElementById('loadingOverlay');
+        loading.classList.remove('hidden');
+        
+        const hasSavedData = loadFromLocalStorage();
+        
+        if (!hasSavedData) {
+            saveToLocalStorage();
+        }
+        
+        document.getElementById('backupPrefix').value = backupPrefix;
+        document.getElementById('backupPath').value = backupPath;
+        updatePathStatus(backupPath);
+        document.getElementById('footerPrefix').textContent = 'سربرگ: ' + backupPrefix;
+        
+        renderGroupsSettings();
+        renderTitles();
+        renderGroups('');
+        
+        setTimeout(() => {
+            loading.classList.add('hidden');
+        }, 500);
+    }
+
+    initApp();
+</script>
+</body>
+</html>
